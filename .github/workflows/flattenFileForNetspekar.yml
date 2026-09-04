@@ -1,0 +1,155 @@
+# This workflow was automatically converted from Azure Pipelines
+# Conversion date: 2026-09-04 11:37:40 UTC
+# Please review and test before using in production
+
+name: flatten file for netspekar
+on:
+  workflow_dispatch:
+    inputs:
+      ENVIRONMENT:
+        description: ENVIRONMENT
+        type: choice
+        options:
+        - us-dev
+        - us-qa
+        - us-perf
+        - us-int
+        - us-stage
+        - eu-stage
+        default: us-int
+        required: false
+      cfg:
+        description: cfg
+        type: string
+        default: '{"endpoint": "$(NETSPARKER_MS_ENDPOINT)", "scanWebSitesProfile": "$(NETSPARKER_MS_PROFILE_ID)", "scanWebSites": "$(NETSPARKER_MS_WEBSITE_ID)", "jobOptions": {"timeoutInMinutes": "480"}, "buildFail": "true", "severity": "DoNotFail", "hasReport": "true", "reportType": "ScanDetail", "onlyUnconfirmedIssues": "true", "excludeAddressedIssues": "true", "ignoreFalsePositive": "true", "ignoreRiskAccepted": "true", "stopScan": "true"}'
+        required: false
+      ctx:
+        description: ctx
+        type: string
+        default: '{"name": "netsparker", "display": "netsparker job"}'
+        required: false
+  push:
+    branches:
+    - main
+  pull_request:
+    branches:
+    - main
+env:
+  ENVIRONMENT: ${{ inputs.ENVIRONMENT }}
+jobs:
+  ${{ coalesce(parameters.ctx.name, 'netsparker') }}:
+    runs-on: ubuntu-latest
+    name: ${{ coalesce(parameters.ctx.display, 'netsparker job') }}
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+    - uses: actions/checkout@v4
+      with:
+        repository: none
+    - name: '[!] TODO: Manual Conversion Required'
+      run: >-
+        # TODO: This step from the Azure Pipeline could not be automatically converted.
+
+        #
+
+        # Original ADO step definition:
+
+        #   ${{ each step in parameters.cfg.beforeScan }}: System.Collections.Generic.List`1[System.Object]
+
+        #
+
+        # Please review the original pipeline and convert this step manually.
+
+        # Common reasons for manual conversion:
+
+        #   - Custom/uncommon tasks not in the mapping dictionary
+
+        #   - Complex nested structures or unusual YAML formats
+
+        #   - Third-party extensions specific to Azure DevOps
+
+        #
+
+        echo '[!] Manual conversion required for this step'
+
+        echo 'See comments above for original step definition'
+
+        exit 0  # Change to 'exit 1' if you want the workflow to fail here
+    - name: '[!] TODO: Manual Conversion Required'
+      run: >-
+        # TODO: This step from the Azure Pipeline could not be automatically converted.
+
+        #
+
+        # Original ADO step definition:
+
+        #   ${{ each step in parameters.cfg.custom }}: System.Collections.Generic.List`1[System.Object]
+
+        #
+
+        # Please review the original pipeline and convert this step manually.
+
+        # Common reasons for manual conversion:
+
+        #   - Custom/uncommon tasks not in the mapping dictionary
+
+        #   - Complex nested structures or unusual YAML formats
+
+        #   - Third-party extensions specific to Azure DevOps
+
+        #
+
+        echo '[!] Manual conversion required for this step'
+
+        echo 'See comments above for original step definition'
+
+        exit 0  # Change to 'exit 1' if you want the workflow to fail here
+    - id: netsparker-scan-step
+      uses: netsparker/Netsparker-Cloud-GitHub-Actions@v1.0.1
+      with:
+        website-id: ${{ inputs.cfg_scanWebSites }}
+        scan-type: FullWithSelectedProfile
+        profile-id: ${{ inputs.cfg_scanWebSitesProfile }}
+        user-id: ${{ vars.NETSPARKER_USER_ID }}
+        api-token: ${{ secrets.NETSPARKER_API_TOKEN }}
+        base-url: https://www.netsparkercloud.com
+        wait-for-completion: false
+        fail-on-level: DoNotFail
+      if: ${{ !(inputs.cfg_custom) }}
+    - name: Display Scan Request Message
+      run: echo "${{ steps.netsparker-scan-step.outputs.scan-message }}" >> $GITHUB_OUTPUT
+    - name: '[!] TODO: Manual Conversion Required'
+      run: >-
+        # TODO: This step from the Azure Pipeline could not be automatically converted.
+
+        #
+
+        # Original ADO step definition:
+
+        #   ${{ each step in parameters.cfg.postScan }}: System.Collections.Generic.List`1[System.Object]
+
+        #
+
+        # Please review the original pipeline and convert this step manually.
+
+        # Common reasons for manual conversion:
+
+        #   - Custom/uncommon tasks not in the mapping dictionary
+
+        #   - Complex nested structures or unusual YAML formats
+
+        #   - Third-party extensions specific to Azure DevOps
+
+        #
+
+        echo '[!] Manual conversion required for this step'
+
+        echo 'See comments above for original step definition'
+
+        exit 0  # Change to 'exit 1' if you want the workflow to fail here
+permissions:
+  contents: read
+  actions: read
+  id-token: write
+  checks: write
+  pull-requests: write

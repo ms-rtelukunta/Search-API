@@ -1,0 +1,92 @@
+# This workflow was automatically converted from Azure Pipelines
+# Conversion date: 2026-09-04 11:37:41 UTC
+# Please review and test before using in production
+
+name: Keyvault
+on:
+  workflow_dispatch:
+    inputs:
+      Operation:
+        description: Operation
+        type: choice
+        options:
+        - List
+        - Set
+        - Delete
+        - Show
+        default: List
+        required: false
+      AZURESUB:
+        description: AZURESUB
+        type: choice
+        options:
+        - concoursesearch-dev-connection
+        - concoursesearch-predev-connection
+        - concoursesearch-qa-connection
+        - concoursesearch-stage-connection
+        - concoursesearch-prod-connection
+        - concoursearch-apac-stage-connection
+        - concoursearch-apac-prod-connection
+        - concoursearch-emea-stage-connection
+        - concoursearch-emea-prod-connection
+        default: concoursesearch-dev-connection
+        required: false
+      KeyVault:
+        description: KeyVault
+        type: choice
+        options:
+        - pzi-gxu2-n-kv-zoknd-d003
+        - pzi-gxu2-n-kv-zoknd-d005
+        - pzi-gxu2-n-kv-zoknd-d004
+        - pzi-gxu2-g-kv-zoknd-s001
+        - pzi-gxu2-p-kv-zoknd-p001
+        - pzi-gxwe-g-kv-zeeqq-s001
+        - pzi-gxse-g-kv-jhmhv-s001
+        - pzi-gxse-p-kv-jhmhv-p001
+        - pzi-gxwe-p-kv-zeeqq-p001
+        default: pzi-gxu2-n-kv-zoknd-d003
+        required: false
+      SecretName:
+        description: SecretName
+        type: string
+        default: ''
+        required: false
+      SecretValue:
+        description: SecretValue
+        type: string
+        default: ''
+        required: false
+env:
+  operation: ${{ inputs.Operation }}
+  azureSub: ${{ inputs.AZURESUB }}
+  keyVault: ${{ inputs.KeyVault }}
+  secretName: ${{ inputs.SecretName }}
+  secretValue: ${{ inputs.SecretValue }}
+jobs:
+  KeyVaultTasks_KeyVaultOperation:
+    runs-on: ubuntu-latest
+    name: ${{ variables.operation }} Secret
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+    - name: ${{ env.OPERATION }} Secret in Key Vault
+      uses: azure/cli@v2
+      with:
+        inlineScript: >
+          if [ "${{ env.OPERATION }}" == "Set" ]; then
+            az keyvault secret set --vault-name ${{ env.KEYVAULT }} --name ${{ env.SECRETNAME }} --value ${{ env.SECRETVALUE }}
+          elif [ "${{ env.OPERATION }}" == "Show" ]; then
+            az keyvault secret show --vault-name ${{ env.KEYVAULT }} --name ${{ env.SECRETNAME }} --query 'value' --output tsv
+          elif [ "${{ env.OPERATION }}" == "Delete" ]; then
+            az keyvault secret delete --vault-name ${{ env.KEYVAULT }} --name ${{ env.SECRETNAME }}
+          else
+            az keyvault secret list --vault-name ${{ env.KEYVAULT }} --output table
+          fi
+      env:
+        SecretValue: ${{ env.SECRETVALUE }}
+permissions:
+  contents: read
+  actions: read
+  id-token: write
+  checks: write
+  pull-requests: write

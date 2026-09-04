@@ -1,0 +1,62 @@
+# This workflow was automatically converted from Azure Pipelines
+# Conversion date: 2026-09-04 11:37:41 UTC
+# Please review and test before using in production
+
+name: Jmeter-Testing
+on:
+  push:
+    branches:
+    - none
+env:
+  venv: ${{ github.workspace }}\venv
+jobs:
+  myJob:
+    runs-on: windows-latest
+    timeout-minutes: 1200
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+    - run: >
+        dir C:\JMeter\apache-jmeter-5.4.3\bin
+
+        $destination = 'C:\apache-jmeter-5.4.3.zip'
+
+        $targetPath = 'C:\JMeter'
+
+        $JMeterPath = '\apache-jmeter-5.4.3\bin'
+
+        $fullPath = join-path -Path $targetPath -ChildPath $JMeterPath
+
+        Write-Host "Adding JMeter to PATH"
+
+        $Env:PATH += $fullPath + ";"
+
+        refreshenv
+
+        jmeter -n -t CI_CD_pipeline_intergation\CI_CD_critical_flows_API_WD.jmx -l api_report.jtl
+
+        python scripts\jtl_junit_converter.py api_report.jtl Junit.xml
+
+        Write-Output $Env:PATH
+
+        $Env:PATH
+      shell: pwsh
+    - name: Publish result
+      uses: EnricoMi/publish-unit-test-result-action@v2
+      with:
+        files: ${{ github.workspace }}\s\Junit.xml
+        reporter: java-junit
+        fail-on-empty: false
+      if: success() || failure()
+      timeout-minutes: 2
+    - name: Publish test artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: Jmeter-report.zip
+      if: success() || failure()
+permissions:
+  contents: read
+  actions: read
+  id-token: write
+  checks: write
+  pull-requests: write
